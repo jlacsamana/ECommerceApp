@@ -8,8 +8,8 @@ public partial class AppShell : Shell
 	{
 		InitializeComponent();
 
-		// routes
-		Routing.RegisterRoute("inventory", typeof(ManageInventory));
-		Routing.RegisterRoute("listings", typeof(ManageListings));
-	}
+        // routes
+        Routing.RegisterRoute("inventory", typeof(ManageInventory));
+        Routing.RegisterRoute("listings", typeof(ManageListings));
+    }
 }
