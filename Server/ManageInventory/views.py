@@ -1,30 +1,145 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
+from ManageInventory.models import InventoryItem
+from rest_framework import viewsets
+import json
+from django.views.decorators.csrf import csrf_exempt
+
 # Create your views here.
 
+
 def test(request):
-    return JsonResponse({'message': 'Test Successful: Inventory Working'})
+    return JsonResponse({"message": "Test Successful: Inventory Working"})
 
-@api_view(['GET'])
-def get_inventory_items(request):
-    ''''''
 
-@api_view(['GET'])
-def get_inventory_item(request, id):
-    ''''''
+@csrf_exempt
+def route_handler(request):
+    """a handler for paramaterless requests"""
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            # load in mandatory data
+            newItem = InventoryItem.objects.create(
+                upc=data["upc"],
+                name=data["name"],
+                description=data["description"],
+                is_second_hand=data["is_second_hand"],
+            )
+            # load in optional fields if provided
+            if data.get("manufacturer") != None:
+                newItem.manufacturer = data["manufacturer"]
 
-@api_view(['POST'])
-def post_new_inventory_item(request):
-    ''''''
+            if data.get("product_series") != None:
+                newItem.product_series = data["product_series"]
 
-@api_view(['PATCH'])
-def edit_inventory_item(request):
-    ''''''
+            if data.get("quantity") != None:
+                newItem.quantity = data["quantity"]
+            newItem.save()
+            return JsonResponse(
+                {"msg": "Item added", "resp": InventoryItemParser(newItem)}, status=200
+            )
+        except:
+            return JsonResponse({"msg": "Could Not Add"}, status=500)
+    elif request.method == "GET":
+        try:
+            queryKey = request.GET.get("queryKey", "")
+            queryKeyVal = request.GET.get("queryKeyVal", "")
+            queryOffset = request.GET.get("queryAmt", 0)
+            queryAmt = request.GET.get("queryAmt", 50)
 
-@api_view(['DELETE'])
-def delete_inventory_item(request, id):
-    ''''''
+            match queryKey:
+                case "name":
+                    rawResults = InventoryItem.objects.filter(name_contains=queryKeyVal)
+                case "manufacturer":
+                    rawResults = InventoryItem.objects.filter(
+                        manufacturer_contains=queryKeyVal
+                    )
+                case "series":
+                    rawResults = InventoryItem.objects.filter(
+                        product_series_contains=queryKeyVal
+                    )
+                case _:
+                    rawResults = InventoryItem.objects.all()
+
+            subset = rawResults[(queryOffset - 1) :]
+            if queryAmt < len(subset):
+                subset = subset[:queryAmt]
+
+            parsedSubset = map(InventoryItemParser, subset)
+            return JsonResponse(
+                {"msg": "Ok - Items fetched", "resp": parsedSubset}, status=200
+            )
+
+            return
+        except:
+            return JsonResponse({"msg": "Could Not Make Query"}, status=500)
+
+
+@csrf_exempt
+def route_handler_with_id(request, id):
+    """a handler for requests that take an id as a parameter"""
+    if request.method == "PATCH":
+        try:
+            retrItem = InventoryItem.objects.get(pk=id)
+            data = json.loads(request.body)
+
+            # required fields
+            retrItem.upc = data["upc"]
+            retrItem.name = data["name"]
+            retrItem.description = data["description"]
+            retrItem.is_second_hand = data["is_second_hand"]
+
+            # optional fields
+            if data.get("manufacturer") != None:
+                retrItem.manufacturer = data["manufacturer"]
+
+            if data.get("product_series") != None:
+                retrItem.product_series = data["product_series"]
+
+            if data.get("quantity") != None:
+                retrItem.quantity = data["quantity"]
+
+            retrItem.save()
+            return JsonResponse(
+                {"msg": "OK - Item Edited", "resp": InventoryItemParser(retrItem)},
+                status=200,
+            )
+        except:
+            return JsonResponse({"msg": "Not Found"}, status=400)
+    elif request.method == "GET":
+        try:
+            retrItem = InventoryItem.objects.get(pk=id)
+            return JsonResponse(
+                {"msg": "OK - Fetched", "data": InventoryItemParser(retrItem)},
+                status=200,
+            )
+        except:
+            return JsonResponse({"msg": "Not Found"}, status=400)
+    elif request.method == "DELETE":
+        try:
+            retrItem = InventoryItem.objects.get(pk=id)
+            retrItem.delete()
+            return JsonResponse(
+                {"msg": "OK - Deleted", "data": InventoryItemParser(retrItem)},
+                status=200,
+            )
+        except:
+            return JsonResponse({"msg": "Not Found"}, status=400)
+
+
+def InventoryItemParser(item: InventoryItem):
+
+    return {
+        "id": item.id,
+        "upc": item.upc,
+        "name": item.name,
+        "description": item.description,
+        "manufacturer": item.manufacturer,
+        "product_series": item.product_series,
+        "is_second_hand": item.is_second_hand,
+        "quantity": item.quantity,
+    }

@@ -11,8 +11,8 @@ from .views import (
 urlpatterns = [
     path("test", test, name="test"),
     path("", get_listings, name="get-listing"),
-    path("<str:id>", get_listing, name="get-listing-by-id"),
+    path("<int:id>", get_listing, name="get-listing-by-id"),
     path("", post_new_listing, name="post-listing"),
     path("", edit_listing, name="edit-listing"),
-    path("<str:id>", delete_listing, name="delete-listing"),
+    path("<int:id>", delete_listing, name="delete-listing"),
 ]
