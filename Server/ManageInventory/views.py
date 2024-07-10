@@ -50,26 +50,25 @@ def route_handler(request):
             queryKeyVal = request.GET.get("queryKeyVal", "")
             queryOffset = request.GET.get("queryAmt", 0)
             queryAmt = request.GET.get("queryAmt", 50)
-
             match queryKey:
                 case "name":
-                    rawResults = InventoryItem.objects.filter(name_contains=queryKeyVal)
+                    rawResults = InventoryItem.objects.filter(
+                        name__contains=queryKeyVal
+                    )
                 case "manufacturer":
                     rawResults = InventoryItem.objects.filter(
-                        manufacturer_contains=queryKeyVal
+                        manufacturer__contains=queryKeyVal
                     )
                 case "series":
                     rawResults = InventoryItem.objects.filter(
-                        product_series_contains=queryKeyVal
+                        product_series__contains=queryKeyVal
                     )
                 case _:
                     rawResults = InventoryItem.objects.all()
-
-            subset = rawResults[(queryOffset - 1) :]
+            subset = rawResults[queryOffset:]
             if queryAmt < len(subset):
                 subset = subset[:queryAmt]
-
-            parsedSubset = map(InventoryItemParser, subset)
+            parsedSubset = list(map(InventoryItemParser, subset))
             return JsonResponse(
                 {"msg": "Ok - Items fetched", "resp": parsedSubset}, status=200
             )
@@ -86,7 +85,6 @@ def route_handler_with_id(request, id):
         try:
             retrItem = InventoryItem.objects.get(pk=id)
             data = json.loads(request.body)
-
             # required fields
             retrItem.upc = data["upc"]
             retrItem.name = data["name"]
