@@ -16,7 +16,6 @@ def test(request):
     )
 
 
-@csrf_exempt
 def route_handler(request):
     """a handler for paramaterless requests"""
     if request.method == "POST":
@@ -115,7 +114,6 @@ def route_handler(request):
             return JsonResponse({"msg": "Could Not Make Query"}, status=500)
 
 
-@csrf_exempt
 def route_handler_with_id(request, id):
     """a handler for requests that take an id as a parameter"""
     if request.method == "PATCH":
