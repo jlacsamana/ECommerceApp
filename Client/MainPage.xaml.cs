@@ -2,23 +2,20 @@
 
 public partial class MainPage : ContentPage
 {
-	int count = 0;
 
 	public MainPage()
 	{
 		InitializeComponent();
 	}
 
-	private void OnCounterClicked(object sender, EventArgs e)
-	{
-		count++;
+    private async void OnSSOLogin(object sender, EventArgs e)
+    {
+        // add logic to allow SSO login here
 
-		if (count == 1)
-			CounterBtn.Text = $"Clicked {count} time";
-		else
-			CounterBtn.Text = $"Clicked {count} times";
 
-		SemanticScreenReader.Announce(CounterBtn.Text);
-	}
+        // if succeeded
+        await Shell.Current.GoToAsync("//loggedInHomePage");
+
+    }
 }
 

@@ -16,7 +16,7 @@
 
 		<!-- App Identifier -->
 		<ApplicationId>com.companyname.client</ApplicationId>
-		<ApplicationIdGuid>3d833b4a-089a-49f7-9122-9a85ffffaedc</ApplicationIdGuid>
+		<ApplicationIdGuid>2d968c46-d26b-4c90-8f59-37964041ba99</ApplicationIdGuid>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -53,6 +53,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Views\Home.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\ManageInventory.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

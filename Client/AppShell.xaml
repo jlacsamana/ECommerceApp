@@ -8,9 +8,15 @@
     Shell.FlyoutBehavior="Flyout">
 
     <ShellContent
-        Title="Home"
+        FlyoutItemIsVisible="False"
+        Title="Home Page"
         ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        Route="homePage" />
+
+    <ShellContent
+        Title="Home Page"
+        ContentTemplate="{DataTemplate views:Home}"
+        Route="loggedInHomePage" />
     <ShellContent
         Title="Manage Inventory"
         ContentTemplate="{DataTemplate views:ManageInventory}"
@@ -19,5 +25,6 @@
         Title="Manage Inventory"
         ContentTemplate="{DataTemplate views:ManageListings}"
         Route="listings" />
+
 
 </Shell>
